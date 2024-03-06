@@ -2,15 +2,7 @@ import numpy as np
 import random
 from symbols import EMPTY_SYMBOL as EMPTY_VALUE
 from symbols import MINE_SYMBOL
-
-"""
-    String value (one character) that represents empty element of board.
-"""
 VALID_ROW_VALUES = [' ', 'o', '1', '2', '3', '4', '5', '6', '7', '8']
-"""
-    Represents the only valid row values.
-"""
-
 
 class BoardContents:
 
@@ -23,8 +15,7 @@ class BoardContents:
         self.values = np.ndarray(shape, np.byte)
         self.changed_positions = []
         if initialize:
-            self._rows = [
-                [initialized_value for _ in range(size)] for _ in range(size)]
+            self._rows = [[initialized_value for _ in range(size)] for _ in range(size)]
             number_value = 0
             if initialized_value.isnumeric():
                 val = int(initialized_value)
@@ -47,6 +38,7 @@ class BoardContents:
         self._validate_key(item)
         return self._rows[item[1]][item[0]]
 
+
     def __setitem__(self, key, item):
         self._validate_key(key)
         column = key[0]
@@ -66,8 +58,7 @@ class BoardContents:
         if type(part) is not int:
             raise ValueError('Key must contain integers')
         if part < 0 or part >= self.size:
-            raise ValueError(
-                'Every integer of the key must be in range 0..size')
+            raise ValueError('Every integer of the key must be in range 0..size')
 
     def _validate_key(self, key):
         if type(key) is not tuple and len(key) != 2:
@@ -105,8 +96,7 @@ class BoardContents:
 
         board = [[0 for _ in range(0, rows)] for _ in range(0, cols)]
 
-        board_coordinates = [(x, y) for x in range(0, cols)
-                             for y in range(0, rows)]
+        board_coordinates = [(x, y) for x in range(0, cols) for y in range(0, rows)]
         mine_coordinates = random.sample(board_coordinates, mines)
 
         for mine in mine_coordinates:
@@ -135,6 +125,7 @@ class BoardContents:
                         board_contents.values[j, i] = int(board[i][j])
                     else:
                         board_contents.values[j, i] = 0
+
 
         board_contents._rows = board
         board_contents.filled_elements = filled_elements

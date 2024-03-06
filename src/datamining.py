@@ -1,13 +1,8 @@
 from board import Board
 from minesweeper import Minesweeper
 from symbols import MINE_SYMBOL
-from neuralnet.transformer import get_network_input_for_board
+from transformer import get_network_input_for_board
 import numpy as np
-
-# Mining process:
-# 1. Generate a random board
-# 2. Make random number of random (non-losing moves)
-# 3. Take the visible board and real board and get information wheather you can mine the data
 
 def mine_through_game(game: Minesweeper):
     X_values, Y_values, network_inputs = get_network_input_for_board(game.visible_board)

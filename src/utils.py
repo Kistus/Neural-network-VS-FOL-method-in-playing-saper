@@ -49,11 +49,11 @@ def get_positions_that_changed(b0, b1, every_position, include_neighbours=False)
 
 
 def get_positions_that_changed_with_neighbours(fol, b0, b1, every_position):
-    changed_positions = np.zeros(fol.shape, np.bool)
+    changed_positions = np.zeros(fol.shape, bool)
     for pos in every_position:
         if b0[pos] != b1[pos]:
             changed_positions[pos] = True
-    true_values = np.ones(fol.shape, np.bool)
+    true_values = np.ones(fol.shape, bool)
     neighbour_positions = reversed_neighbour_counting(fol, true_values, changed_positions)
     all_positions = changed_positions | neighbour_positions
     for pos in every_position:
@@ -209,7 +209,7 @@ def get_and_or_predicate(name, satisfied_name, operation):
     element_list = to_element_list(specification.get(satisfied_name))
     if len(element_list) == 0:
         def zeros(fol):
-            return np.zeros(fol.shape, np.bool)
+            return np.zeros(fol.shape, bool)
         return zeros
 
     def get_every_value(fol):
@@ -285,7 +285,7 @@ class FOL:
 
     def perform_simple_predicate_with_neighbour_counting(self, simple_name):
         simple_predicate = get_simple_predicate(simple_name)
-        predicate_values = np.zeros(self.shape, np.bool)
+        predicate_values = np.zeros(self.shape, bool)
         neighbour_counting_values = np.zeros(self.shape, np.byte)
         for position in self.board.get_every_position():
             if simple_predicate(self, position):

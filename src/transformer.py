@@ -34,40 +34,43 @@ def get_network_input_for_position(board_contents, x, y):
 def get_neighbours(x, y, distance):
     element = 0
     elements = (2 * distance + 1) ** 2 - 1
-    x_vals = np.ndarray((elements,), np.uint32)
-    y_vals = np.ndarray((elements,), np.uint32)
+    x_vals = np.zeros((elements,), np.uint32)
+    y_vals = np.zeros((elements,), np.uint32)
     for i in range(-distance, distance+1):
         for j in range(-distance, distance+1):
             if i == 0 and j == 0:
                 continue
             x_vals[element] = x + i
-            y_vals[element] = y + i
+            y_vals[element] = y + j  # Corrected assignment
             element += 1
     return x_vals, y_vals
 
 
-# Finds nearest neighbours and gets their values (if the neighbour doesn't exist 255 is it's value)
+
 def get_board_fragment(board_contents, x, y):
     X_values, Y_values = get_neighbours(x, y, 3)
     accessible_x_vals = np.logical_and((X_values >= 0), (X_values < board_contents.shape[0]))
     accessible_y_vals = np.logical_and((Y_values >= 0), (Y_values < board_contents.shape[1]))
     accessible_values = np.logical_and(accessible_x_vals, accessible_y_vals)
     result = np.zeros(accessible_values.shape, np.uint8)
-    for i in range(8):
+    element = 0  # Initialize element counter
+    for i in range(48):
         if accessible_values[i]:
-            result[i] = board_contents[X_values[i], Y_values[i]]
+            result[element] = board_contents[X_values[i], Y_values[i]]  # Use element for indexing
+            element += 1  # Increment element counter
         else:
             result[i] = 255
+            element += 1
     return result
 
 
-# Performs one-hot encoding on the board fragment
 def classify_elements(content_values):
     flat_content_values = content_values.flatten()
     size = flat_content_values.shape[0]
     classes = [ord(CLOSED_SYMBOL), ord(' '), ord('1'), ord('2'), ord('3'), ord('4'),
                ord('5'), ord('6'), ord('7'), ord('8'), ord('9'), 255]
-    result = np.zeros((len(classes), size), np.float32)
+    result = np.zeros((size, len(classes)), np.float32)
     for i, class_element in enumerate(classes):
-        result[i] = (flat_content_values == class_element) * 1.0
+        result[:, i] = (flat_content_values == class_element) * 1.0
     return result.flatten()
+

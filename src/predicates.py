@@ -1,4 +1,4 @@
-from fol.utils import predicate
+from utils import predicate
 from symbols import CLOSED_SYMBOL, FLAG_SYMBOL
 
 predicate(name='field_contain_number', field_value_not_equal=0)

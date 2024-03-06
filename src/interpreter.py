@@ -1,7 +1,7 @@
 import sys
 import itertools
 from enum import IntEnum
-from fol.utils import predicates, is_predicate_simple, \
+from utils import predicates, is_predicate_simple, \
     get_directly_implied_predicate_names, generate_every_position_list, generate_list_of_neighbour_lists
 import numpy as np
 
@@ -140,12 +140,6 @@ class PredicateType(IntEnum):
     def requires_neighbour_counting(self):
         return self.value & PredicateType.NEIGHBOUR_COUNTING
 
-
-# TODO predicate execution (neighbour counting), without dependency checking
-# TODO predicate execution with changes matrix + changes variable
-# TODO predicate execution with
-
-
 class BasePredicateEvaluator:
 
     predicate_names = set()
@@ -166,13 +160,13 @@ class BasePredicateEvaluator:
         self.predicate_values = {}
         self.board_contents = np.zeros(self.shape, np.byte)
         self.board_values = np.zeros(self.shape, np.byte)
-        self.changed = np.ones(self.shape, np.bool)
+        self.changed = np.ones(self.shape, bool)
         self.neighbour_counting_values = {}
         self.simple_predicate_checking_value = {}
         self.simple_predicate_value_or_symbol = {}
         self.simple_predicate_negate = {}
         for predicate_name in self.predicate_names:
-            self.predicate_values[predicate_name] = np.zeros(self.shape, np.bool)
+            self.predicate_values[predicate_name] = np.zeros(self.shape, bool)
             self.neighbour_counting_values[predicate_name] = np.zeros(self.shape, np.byte)
 
     def update_board(self, board_contents, board_values):
@@ -219,7 +213,7 @@ class BasePredicateEvaluator:
         is_one = new_values == 1
         changed_from_zero_to_one = changed & is_one
         changed_from_one_to_zero = changed & ~is_one
-        neighbour_changes = np.zeros(self.shape, np.bool)
+        neighbour_changes = np.zeros(self.shape, bool)
         neighbour_counting_values = self.neighbour_counting_values[predicate_name]
         for position in self.list_of_every_positions:
             if changed_from_zero_to_one[position]:

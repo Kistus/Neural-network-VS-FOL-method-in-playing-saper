@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
-from neuralnet.transformer import NUM_OF_CLASSES, NUM_OF_NEIGHBOURS
-from neuralnet.datamining import get_possible_inputs_for_game
+from transformer import NUM_OF_CLASSES, NUM_OF_NEIGHBOURS
+from datamining import get_possible_inputs_for_game
 
 INPUT_SHAPE = (NUM_OF_CLASSES * NUM_OF_NEIGHBOURS, )
 
@@ -34,23 +34,6 @@ def join_datasets(size, mines, max_clicks, num_datasets):
             idx += 1
     return X, Y
 
-
-def to_uniform_result_distribution(x_vals, y_vals):
-    ones = int(y_vals.sum())
-    zeros = len(y_vals) - ones
-    selector = np.ones((len(y_vals, )), np.bool8)
-    difference = abs(ones-zeros)
-    element_to_remove = 1.0 if ones > zeros else 0.0
-    i = 0
-    j = 0
-    while i < difference:
-        if y_vals[j] == element_to_remove:
-            i += 1
-            selector[j] = False
-        j += 1
-    return x_vals[selector], y_vals[selector]
-
-
 def shuffle_dataset(x_vals, y_vals):
     indexes = np.array(list(range(len(y_vals))))
     np.random.shuffle(indexes)
@@ -59,9 +42,9 @@ def shuffle_dataset(x_vals, y_vals):
 
 def make_model():
     model = create_model()
-    x_vals, y_vals = shuffle_dataset(*join_datasets(20, 20, 5, 100))
-    x_test, y_test = shuffle_dataset(*join_datasets(20, 20, 5, 10))
-    model.fit(x_vals, y_vals, epochs=20)
+    x_vals, y_vals = shuffle_dataset(*join_datasets(15, 30, 40, 1000))
+    x_test, y_test = shuffle_dataset(*join_datasets(15, 30, 40, 100))
+    model.fit(x_vals, y_vals, epochs=50)
     model.evaluate(x_test, y_test)
     model.save('mymodel.h5')
 

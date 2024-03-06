@@ -1,97 +1,66 @@
-from tkinter import Tk
-from graphics import Graphics
-from minesweeper import Minesweeper
+import time
+
+import pandas as pd
+from agent import Agent as FOLAgent
+from neuralagent import Agent as NeuralAgent
 from board import Board
-import minesweeperio
-import fol.predicates
-import fol.utils
-import fol.agent
-import fol.interpreter
+from minesweeper import Minesweeper
 
-board = minesweeperio.read_board_from_file("board.example")
+AGENTS = [FOLAgent, NeuralAgent]
 
-
-def lost_game():
-    print('Example game lost by a player')
-    game = Minesweeper(board)
-    game.print_closed_board()
-    game.set_flag(4, 1)
-    game.click(6, 1)
-    game.click(1, 5)
-    game.print_closed_board()
-    return game
+def single_performance_measure(agent, game):
+    t = time.process_time()
+    agent.solve(game)
+    elapsed_time = time.process_time() - t
+    return {
+        'won': game.won,
+        'lost': game.lost,
+        'size': game.size,
+        'elapsed_time': elapsed_time,
+        'last_move_random': agent.last_move_random,
+        'agent': agent.name()
+    }
 
 
-def won_game():
-    print('Example game won by a player')
-    game = Minesweeper(board)
-    game.print_closed_board()
-    game.click(5, 4)
-    # Current implementation doesn't require to set every flag, as long as everything other than mines is available
-    # game.set_flag(2, 1)
-    # game.set_flag(3, 2)
-    # game.set_flag(4, 2)
-    # game.set_flag(8, 2)
-    # game.set_flag(8, 3)
-    # game.set_flag(1, 5)
-    # game.set_flag(9, 5)
-    # game.set_flag(9, 8)
-    game.click(9, 9)
-    game.click(9, 7)
-    game.click(9, 6)
-    game.set_flag(3, 7)
-    game.set_flag(4, 7)
-    game.click(1, 3)
-    game.click(1, 1)
-    game.click(3, 1)
-    game.click(4, 1)
-    game.click(8, 1)
-    game.click(9, 1)
-    game.click(9, 2)
-    game.click(9, 3)
-    game.click(9, 4)
-    game.print_closed_board()
-    return game
+def create_agents(board_size):
+    return list(map(lambda agent: agent(board_size), AGENTS))
 
 
-def show_generated_board():
-    b = Board.generate(9, 9)
-    print('Example generated board')
-    print(b.contents)
+def get_random_game(board_size, mines):
+    return Minesweeper(Board.generate(board_size, mines))
 
+
+def measure_agents(board_size, mines, measurements):
+    agents = create_agents(board_size)
+    dataset = []
+    for agent in agents:
+        for _ in range(measurements):
+            game = get_random_game(board_size, mines)
+            measurement = single_performance_measure(agent, game)
+            dataset.append(measurement)
+    return pd.DataFrame(dataset)
+
+def mines_amount(size):
+    return int(size * size * 0.07)
 
 def main():
-    window = Tk()
-    PredicateEvaluator = fol.interpreter.compile_predicates()
-    v = PredicateEvaluator(9)
-    v.predicate_field_can_be_clicked()
-    list_of_neighbour_lists = fol.utils.generate_list_of_neighbour_lists(9)
-    list_of_every_positions = fol.utils.generate_every_position_list(9)
-    correct = 0
-    incorrect = 0
-    graf = Graphics(window, 0)
+    mines = 7
+    size = 8
+    sizes = [8, 10, 12, 14, 16, 18]
+    tests = 100
+    measurements = []
 
-    for i in range(100):
+    for size in sizes:
+        mines = mines_amount(size)
+        measurement = measure_agents(size, mines, tests)
+        measurements.append(measurement)
+        print(f'Testing agents, size = {size}, mines = {mines}, tests = {tests} per agent')
 
-        b = Board.generate(9, 9)
-
-        graf = Graphics(window, i)
-        graf.createMenu()
-        graf.prepareWindow()
-        graf.prepareGame(b.contents)
-
-        g = Minesweeper(b)
-        if fol.agent.solver2(g, list_of_neighbour_lists, list_of_every_positions, graf):
-            correct += 1
-        else:
-            incorrect += 1
-        graf.restartGame()
-
-    print('correct: ', correct)
-    print('incorrect: ', incorrect)
-    graf.window.destroy()
-    graf.window.mainloop()
-
+    combined_measurement = pd.concat(measurements, ignore_index=True)
+    combined_measurement.to_csv('results.csv', index=False)
+#measurement = measure_agents(size, mines, tests)
+    #print(f'Testing agents, size = {size} , mines = {mines}, tests =  {tests} per agent')
+    #measurement.to_csv(r"/Users/mariiakyrychenko/Downloads/Telegram Desktop/neusuka/SI_project/SI_project/src/results.csv", index=False)
 
 if __name__ == '__main__':
     main()

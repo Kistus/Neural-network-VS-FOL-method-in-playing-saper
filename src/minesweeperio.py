@@ -2,27 +2,13 @@ from board import Board, BoardContents
 from validation import positive_int, board_validate
 
 BOARD_CONTENTS_ATTRIBUTE = 'contents'
-"""
-    Attribute that contains BoardContents
-"""
+
 BOARD_ATTRIBUTES = {
     'size': positive_int,
     'mines': positive_int
 }
-"""
-    Every board attribute other than board contents.
-    The attribute is optional (for both input and output)
-    The value should be a function / type that can take string input and produce output in desired type.
-    If the value is incorrect then it is necessary to raise an Error or Exception.
-"""
-BOARD_VALIDATION_FUNCTION = board_validate
-"""
-    The function that check if the board from the file is valid.
-    This function should communicate errors through exceptions/errors.
-    If the value is None then there is no validation.
-    This function should also perform postprocessing of an object if this is necessary.
-"""
 
+BOARD_VALIDATION_FUNCTION = board_validate
 
 def write_board_to_file(board, filename):
     return write_boards_to_file([board], filename)

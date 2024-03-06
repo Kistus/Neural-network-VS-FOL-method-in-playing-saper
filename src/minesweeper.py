@@ -1,7 +1,6 @@
 from board import Board
 from symbols import *
 
-
 class Minesweeper:
     mine_symbol = MINE_SYMBOL
     flag_symbol = FLAG_SYMBOL
@@ -9,19 +8,20 @@ class Minesweeper:
     closed_symbol = CLOSED_SYMBOL
 
     def __init__(self, real_board: Board):
-        size = real_board.size
+        self.size = real_board.size
         mines = real_board.mines
-        self.cols = size
-        self.rows = size
+        self.cols = self.size
+        self.rows = self.size
         self.mines = mines
-        self.visible_board = Board(size, self.closed_symbol)  # The board visible by the player
+        self.visible_board = Board(self.size, self.closed_symbol)
         self.visible_board.mines = mines
-        self.real_board = real_board  # The board with the game contents
+        self.real_board = real_board
         self.flagged_correctly = 0
         self.flagged_incorrectly = 0
         self.lost = False
         self.won = False
         self.ended = False
+        self.click_count = 0
 
     def print_closed_board(self):
         print(self.visible_board.contents)
@@ -74,6 +74,7 @@ class Minesweeper:
     def click(self, x, y):
         current_symbol = self.real_board[x, y]
         self.visible_board[x, y] = current_symbol
+        self.click_count += 1
         if current_symbol == self.mine_symbol:
             self.lost = True
             self.ended = True
@@ -87,12 +88,7 @@ class Minesweeper:
         return self.visible_board
 
     def game_won(self):
-        """
-                Game is won only when all of these statements are true:
-                1. The player didn't click on a mine
-                2. The player didn't flag a field with no mine
-                3. The number of not flagged mines equals the number of invisible elements
-        """
+
         if self.lost:
             return False
         if self.flagged_incorrectly != 0:
